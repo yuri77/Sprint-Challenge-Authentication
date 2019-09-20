@@ -2,6 +2,7 @@ const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const restrict = require("./authenticate-middleware.js");
+const Users = require("../Users/users-model.js");
 
 function generateToken(user) {
   const payload = {
@@ -19,7 +20,13 @@ function generateToken(user) {
 }
 
 router.post("/register", (req, res) => {
-  // implement registration
+  const { username, password } = req.body;
+  Users.insert({ username, password: bcrypt.hashSync(password, 8) })
+    .then(id => res.status(201).json({ message: "User registered", id }))
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({ message: "error registering user" });
+    });
 });
 
 router.post("/login", (req, res) => {
